@@ -2,7 +2,7 @@
 Python command line tool to blast IR commands via the IguanaWorks igclient
 
 Prerequisites:
-A functioning IguanaWorks USB IR Transciever
+A functioning IguanaWorks USB IR Transciever <https://www.iguanaworks.net>
 Python 2.7.x must be installed (Python 3.x may work but has not been tested).
 
 To install download and unzip in any directory.  Copy settings-example.py to settings.py
