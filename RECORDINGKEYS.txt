@@ -1,0 +1,125 @@
+# iguana-blaster recording keys
+Instructions on how to record keys using igclient
+
+Technically there is no key recording software from IguanaWorks.  But the igclient has
+a receive mode that will display the pulses/spaces it receives, and you can output that
+to a text file, do some editing, and have a key file the igclient can send.  Here's what
+to do:
+
+cd C:\Program Files (x86)\IguanaIR\
+
+Once there you can run the igclient.  Have your remote ready to do key presses and make
+sure you can actually point at the IR reciever on the transceiver.  Once you're ready:
+
+igclient.exe --reciever-on --sleep 3 > C:\staging\KEY_THENAME.txt
+
+Everything after the > is up to you.  You need somewhere you can store the generated files
+temporarily.  Repeat this for every key you want to record.  If your recording the numeric
+digits, I recommend naming them as KEY_0.txt, KEY_1.txt, etc.  That's the default the 
+iguana-blast program is expecting (although you can change that in the settings).
+
+Once you've recorded a bunch of keys, you're going to have to edit each file.  Each file
+is going to look something like this:
+
+receiver on: success
+  space: 152917
+received 1 signal(s):
+  space: 152917
+received 1 signal(s):
+  space: 152917
+received 1 signal(s):
+  space: 152917
+received 1 signal(s):
+  space: 114688
+received 2 signal(s):
+  space: 16042
+  pulse: 2730
+received 6 signal(s):
+  pulse: 576
+  space: 3328
+  pulse: 917
+  space: 2410
+  pulse: 917
+  space: 2410
+received 7 signal(s):
+  pulse: 917
+  space: 704
+  pulse: 917
+  space: 2410
+  pulse: 896
+  space: 2410
+
+etc.
+
+You need to go through and delete any line that doesn't start with pulse or space. You
+probably only need to do the first 100 or so lines, as when we're done you're going to have
+a 47 line long file.  Once you've done that, remove the two spaces at the beginning of
+each line and remove the colons after space and pulse.
+
+Now to find the actual key code.  Look for the first pulse entry.  That's the beginning
+of the key code.  You can delete everything before that.  Now look for a space that's
+AFTER the beginning of the key code that's pretty large (probably over 20000).  The pulse
+just before that is the end of the key code. If you deleted everything before the first
+pulse, that last pulse should be at (or at least around) line 47.  Save that file in the
+iguana-blast data/keys directory.  It should look like this when you're done:
+
+pulse 3370
+space 3264
+pulse 917
+space 2410
+pulse 917
+space 2410
+pulse 917
+space 704
+pulse 917
+space 2410
+pulse 917
+space 2410
+pulse 917
+space 2410
+pulse 917
+space 704
+pulse 917
+space 725
+pulse 917
+space 2410
+pulse 917
+space 2410
+pulse 917
+space 704
+pulse 917
+space 725
+pulse 917
+space 704
+pulse 917
+space 2410
+pulse 917
+space 704
+pulse 917
+space 725
+pulse 896
+space 725
+pulse 917
+space 2410
+pulse 917
+space 2410
+pulse 896
+space 725
+pulse 917
+space 704
+pulse 917
+space 2410
+pulse 917
+
+If you want to test your key, you can use igclient:
+
+igclient.exe --send PathToKey\KEYNAME.txt
+
+If all went well you should get 'success' back from igclient.  And if you have the IR
+blaster in place, you will probably notice your device do something.  When testing the
+digit keys, I turned on the TV and then watched to see if I got the beginning of a channel
+change on my cablebox.
+
+That's it.  I don't think this is that hard, but it is kind of tedious.  I wish the
+IguanaWorks folks had a tool that would generate the pulse files for me, but at least
+this gets the job done.
