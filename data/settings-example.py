@@ -44,7 +44,7 @@ ignore_postcmd_for = 0
 aborttime = 10
 
 #number of logs to keep
-logbackups = 0
+logbackups = 1
 
 # for debugging you can get a more verbose log by setting this to True
 debug = False

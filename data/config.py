@@ -17,7 +17,7 @@ defaults = { 'path_to_IGC': 'C:\\Program Files (x86)\\IguanaIR\\igclient.exe',
              'ignore_precmd_for': 0,
              'ignore_postcmd_for': 0,
              'aborttime': 10,
-             'logbackups': 0,
+             'logbackups': 1,
              'debug': False }
 
 
