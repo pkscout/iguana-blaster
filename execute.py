@@ -1,37 +1,17 @@
 # *  Credits:
 # *
-# *  v.0.1.0
+# *  v.1.0.0~beta1
 # *  original iguana-blaster code by pkscout
 
 import atexit, argparse, glob, os, subprocess, sys, time
+import data.config as config
 from ConfigParser import *
 from resources.common.xlogger import Logger
 from resources.common.fileops import readFile, writeFile, deleteFile
 
 p_folderpath, p_filename = os.path.split( os.path.realpath(__file__) )
-lw = Logger( logfile = os.path.join( p_folderpath, 'data', 'logfile.log' ) )
-
-try:
-    import data.settings as settings
-except ImportError:
-    err_str = 'no settings file found at %s' % os.path.join ( p_folderpath, 'data', 'settings.py' )
-    lw.log( [err_str, 'script stopped'] )
-    sys.exit( err_str )
-try:
-    settings.path_to_IGC
-    settings.digit_map
-    settings.key_ext
-    settings.post_channel
-    settings.pre_cmd
-    settings.post_cmd
-    settings.wait_between
-    settings.ignore_precmd_for
-    settings.ignore_postcmd_for
-    settings.aborttime    
-except AttributeError:
-    err_str = 'Settings file does not have all required fields. Please check settings-example.py for required settings.'
-    lw.log( [err_str, 'script stopped'] )
-    sys.exit( err_str )
+lw = Logger( logfile = os.path.join( p_folderpath, 'data', 'logfile.log' ),
+             numbackups = config.Get( 'logbackups' ), logdebug = str( config.Get( 'debug' ) ) )
 
 def _deletePID():
     success, loglines = deleteFile( pidfile )
@@ -55,17 +35,17 @@ class Main:
         self._parse_argv()
         self._wait_for_prev_cmd()
         self._init_vars()
-        self._send_cmds( self._check_cmd_ignore( settings.pre_cmd, settings.ignore_precmd_for, self.pre_lastused_file ) )
+        self._send_cmds( self._check_cmd_ignore( self.PRE_CMD ), self.IGNORE_PRECMD_FOR ), self.PRE_LASTUSED_FILE ) )
         if self.ARGS.channel:
             self._send_cmds( self._splitchannel() )
         elif self.ARGS.cmds:
             self._send_cmds( self.ARGS.cmds )
-        self._send_cmds( self._check_cmd_ignore( settings.post_cmd, settings.ignore_postcmd_for, self.post_lastused_file ) )
+        self._send_cmds( self._check_cmd_ignore( self.POST_CMD, self.IGNORE_POSTCMD_FOR ), self.POST_LASTUSED_FILE ) )
         
                 
     def _check_cmd_ignore( self, cmd, ignore_for, lastused_file ):
         if not cmd:
-            if lastused_file == self.pre_lastused_file:
+            if lastused_file == self.PRE_LASTUSED_FILE:
                 cmd_type = 'pre'
             else:
                 cmd_type = 'post'
@@ -90,24 +70,34 @@ class Main:
 
 
     def _init_vars( self ):
-        self.pre_lastused_file = os.path.join( p_folderpath, 'data', 'precmd_lastused.txt' )
-        self.post_lastused_file = os.path.join( p_folderpath, 'data', 'postcmd_lastused.txt' )
-        self.keypath = os.path.join( p_folderpath, 'data', 'keys' )
+        self.PRE_LASTUSED_FILE = os.path.join( p_folderpath, 'data', 'precmd_lastused.txt' )
+        self.POST_LASTUSED_FILE = os.path.join( p_folderpath, 'data', 'postcmd_lastused.txt' )
+        self.KEYPATH = os.path.join( p_folderpath, 'data', 'keys' )
         if self.ARGS.precmd:
             lw.log( ['overriding default pre command with ' + self.ARGS.precmd] )
-            settings.pre_cmd = self.ARGS.precmd
+            self.PRE_CMD = self.ARGS.precmd
+        else:
+            self.PRE_CMD = config.Get( 'pre_cmd' )
         if self.ARGS.postcmd:
             lw.log( ['overriding default post command with ' + self.ARGS.postcmd] )
-            settings.post_cmd = self.ARGS.postcmd
+            self.POST_CMD = self.ARGS.postcmd
+        else:
+            self.POST_CMD = config.Get( 'post_cmd' )
         if self.ARGS.wait:
             lw.log( ['overriding default wait between with ' + str( self.ARGS.wait )] )
-            settings.wait_between = self.ARGS.wait
+            self.WAIT_BETWEEN = self.ARGS.wait
+        else:
+            self.WAIT_BETWEEN = config.Get( 'wait_between' )
         if self.ARGS.forcepre:
             lw.log( ['overriding default pre command cache time'] )
-            settings.ignore_precmd_for = 0
+            self.IGNORE_PRECMD_FOR = 0
+        else:
+            self.IGNORE_PRECMD_FOR = config.Get( 'ignore_precmd_for' )
         if self.ARGS.forcepost:
             lw.log( ['overriding default post command cache time'] )
-            settings.ignore_postcmd_for = 0
+            self.IGNORE_POSTCMD_FOR = 0
+        else:
+            self.PRE_CMD = config.Get( 'ignore_postcmd_for' )
 
 
     def _parse_argv( self ):
@@ -130,14 +120,14 @@ class Main:
         cmds = cmd.split('|')
         for one_cmd in cmds:
             if one_cmd:
-                keyfile = os.path.join( self.keypath, one_cmd + settings.key_ext )
-                blast_cmd = '"%s" --send "%s"' % (settings.path_to_IGC, keyfile)
+                keyfile = os.path.join( self.KEYPATH, one_cmd + config.Get( 'key_ext' ) )
+                blast_cmd = '"%s" --send "%s"' % (config.Get( 'path_to_IGC' ), keyfile)
                 lw.log( ['sending ' + blast_cmd] )
                 try:
                     subprocess.check_output( blast_cmd, shell=True)
                 except subprocess.CalledProcessError, e:
                     lw.log( [e] )
-            time.sleep( settings.wait_between )
+            time.sleep( self.WAIT_BETWEEN )
 
 
     def _setPID( self ):
@@ -150,13 +140,13 @@ class Main:
         cmd_list = []
         for digit in list( self.ARGS.channel ):
             try:
-                blast_digit = settings.digit_map[digit]
+                blast_digit = config.Get( 'digit_map' )[digit]
             except IndexError:
                 blast_digit = ''
             if blast_digit:
                 cmd_list.append( blast_digit )
-        if settings.post_channel:
-            cmd_list.append( settings.post_channel )
+        if config.Get( 'post_channel' ):
+            cmd_list.append( config.Get( 'post_channel' ) )
         return "|".join( list( cmd_list ) )
 
 
@@ -164,7 +154,7 @@ class Main:
         basetime = time.time()
         while os.path.isfile( prev_pidfile ):
             time.sleep( 1 )
-            if time.time() - basetime > settings.aborttime:
+            if time.time() - basetime > config.Get( 'aborttime' ):
                 err_str = 'taking too long for previous process to close - aborting attempt to send IR commands'
                 lw.log( [err_str] )
                 sys.exit( err_str )

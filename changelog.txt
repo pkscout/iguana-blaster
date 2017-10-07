@@ -1,2 +1,5 @@
+v.1.0.0~beta1
+- changed how settings are handled so that settings.py is no longer required
+
 v.0.1.0
 - initial coding

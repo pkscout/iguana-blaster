@@ -42,3 +42,9 @@ ignore_postcmd_for = 0
 
 # amount of time to wait in seconds until aborting command attempt
 aborttime = 10
+
+#number of logs to keep
+logbackups = 0
+
+# for debugging you can get a more verbose log by setting this to True
+debug = False
