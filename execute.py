@@ -35,12 +35,12 @@ class Main:
         self._parse_argv()
         self._wait_for_prev_cmd()
         self._init_vars()
-        self._send_cmds( self._check_cmd_ignore( self.PRE_CMD ), self.IGNORE_PRECMD_FOR ), self.PRE_LASTUSED_FILE ) )
+        self._send_cmds( self._check_cmd_ignore( self.PRE_CMD, self.IGNORE_PRECMD_FOR, self.PRE_LASTUSED_FILE ) )
         if self.ARGS.channel:
             self._send_cmds( self._splitchannel() )
         elif self.ARGS.cmds:
             self._send_cmds( self.ARGS.cmds )
-        self._send_cmds( self._check_cmd_ignore( self.POST_CMD, self.IGNORE_POSTCMD_FOR ), self.POST_LASTUSED_FILE ) )
+        self._send_cmds( self._check_cmd_ignore( self.POST_CMD, self.IGNORE_POSTCMD_FOR, self.POST_LASTUSED_FILE ) )
         
                 
     def _check_cmd_ignore( self, cmd, ignore_for, lastused_file ):
@@ -97,7 +97,7 @@ class Main:
             lw.log( ['overriding default post command cache time'] )
             self.IGNORE_POSTCMD_FOR = 0
         else:
-            self.PRE_CMD = config.Get( 'ignore_postcmd_for' )
+            self.IGNORE_POSTCMD_FOR = config.Get( 'ignore_postcmd_for' )
 
 
     def _parse_argv( self ):
