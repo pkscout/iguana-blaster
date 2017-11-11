@@ -1,13 +1,16 @@
 # *  Credits:
 # *
-# *  v.1.0.0~beta1
+# *  v.1.0.0~beta2
 # *  original iguana-blaster code by pkscout
 
 import atexit, argparse, glob, os, subprocess, sys, time
 import data.config as config
-from ConfigParser import *
 from resources.common.xlogger import Logger
 from resources.common.fileops import readFile, writeFile, deleteFile
+if sys.version_info < (3, 0):
+    from ConfigParser import *
+else:
+    from configparser import *
 
 p_folderpath, p_filename = os.path.split( os.path.realpath(__file__) )
 lw = Logger( logfile = os.path.join( p_folderpath, 'data', 'logfile.log' ),
@@ -125,7 +128,7 @@ class Main:
                 lw.log( ['sending ' + blast_cmd] )
                 try:
                     subprocess.check_output( blast_cmd, shell=True)
-                except subprocess.CalledProcessError, e:
+                except subprocess.CalledProcessError as e:
                     lw.log( [e] )
             time.sleep( self.WAIT_BETWEEN )
 
