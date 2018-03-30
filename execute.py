@@ -65,7 +65,7 @@ class Main:
             exists = False
         if (not exists) or (time.time() - float( lastused ) > ignore_for*60):
             lw.log( ['setting lastused and running command'] )
-            success, loglines = writeFile ( str( time.time() ), lastused_file )
+            success, loglines = writeFile ( str( time.time() ), lastused_file, wtype='w' )
             lw.log( loglines )
             return cmd
         lw.log( ['ignoring command for now'] )
@@ -135,7 +135,7 @@ class Main:
 
     def _setPID( self ):
         lw.log( ['setting PID file'] )
-        success, loglines = writeFile( pid, pidfile )
+        success, loglines = writeFile( pid, pidfile, wtype='w' )
         lw.log( loglines )        
 
 
