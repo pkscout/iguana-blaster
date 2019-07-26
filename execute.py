@@ -1,10 +1,10 @@
 # *  Credits:
 # *
-# *  v.1.0.0~beta2
+# *  v.1.1.0~beta1
 # *  original iguana-blaster code by pkscout
 
 import atexit, argparse, glob, os, subprocess, sys, time
-import data.config as config
+import resources.config as config
 from resources.common.xlogger import Logger
 from resources.common.fileops import readFile, writeFile, deleteFile
 if sys.version_info < (3, 0):
@@ -38,13 +38,54 @@ class Main:
         self._parse_argv()
         self._wait_for_prev_cmd()
         self._init_vars()
+        if self.ARGS.analogcheck:
+            if self._check_analog( 'livetv' ):
+                return
+            if self._check_analog( 'recording' ):
+                return
+            self._send_cmds( self.ANALOG_FAIL_CMDS )
         self._send_cmds( self._check_cmd_ignore( self.PRE_CMD, self.IGNORE_PRECMD_FOR, self.PRE_LASTUSED_FILE ) )
-        if self.ARGS.channel:
+        if self.CHANNEL:
             self._send_cmds( self._splitchannel() )
         elif self.ARGS.cmds:
             self._send_cmds( self.ARGS.cmds )
         self._send_cmds( self._check_cmd_ignore( self.POST_CMD, self.IGNORE_POSTCMD_FOR, self.POST_LASTUSED_FILE ) )
+        if not self.ARGS.analogcheck:
+            py_folder, py_file = os.path.split( sys.executable )
+            cmd = [os.path.join( py_folder, 'pythonw.exe' ), os.path.join(p_folderpath, p_filename), '-c %s' % self.CHANNEL, '--analogcheck']
+            lw.log( cmd )
+            subprocess.Popen( cmd, shell=True )
         
+
+    def _check_analog( self, type ):
+        # give the recording a chance to start
+        time.sleep( self.ANALOG_WAIT )
+        tv_file = 'nothing.ts'
+        lw.log( ['got here with ' + type] )
+        if type == 'livetv':
+            try:
+                files = os.listdir( self.LIVETV_DIR )
+            except FileNotFoundError:
+                files = []
+            for name in files:
+                if name.endswith( '.ts' ):
+                    tv_file = os.path.join( self.LIVETV_DIR, name )
+                    break
+        elif type == 'recording':
+            recordingrefpath = os.path.join( p_folderpath, 'data', 'recordingpath-%s.txt' % self.CHANNEL )
+            loglines, recordingfile = readFile( recordingrefpath )
+            lw.log( loglines )
+            success, loglines = deleteFile( recordingrefpath )
+            lw.log( loglines )
+            if recordingfile:
+                tv_file = recordingfile.strip()
+        lw.log( ['the file is ' + tv_file] )
+        if not os.path.exists( tv_file ):
+            return False
+        elif os.stat( tv_file ).st_size == 0:
+            return False
+        return True
+
                 
     def _check_cmd_ignore( self, cmd, ignore_for, lastused_file ):
         if not cmd:
@@ -101,6 +142,10 @@ class Main:
             self.IGNORE_POSTCMD_FOR = 0
         else:
             self.IGNORE_POSTCMD_FOR = config.Get( 'ignore_postcmd_for' )
+        self.CHANNEL = self.ARGS.channel.strip()
+        self.ANALOG_FAIL_CMDS = config.Get( 'analog_fail_cmds' )
+        self.ANALOG_WAIT = config.Get( 'analog_wait' )
+        self.LIVETV_DIR = config.Get( 'livetv_dir' )
 
 
     def _parse_argv( self ):
@@ -114,7 +159,10 @@ class Main:
         parser.add_argument( "-w", "--wait", type=int, help="the amount of time (in seconds) to wait between commands" )
         parser.add_argument( "-a", "--forcepre", help="force pre commands to run no matter what", action="store_true" )
         parser.add_argument( "-o", "--forcepost", help="force post commands to run no matter what", action="store_true" )
+        parser.add_argument( "-g", "--analogcheck", help="check the analog encoder file and try channel again if not present", action="store_true" )
         self.ARGS = parser.parse_args()
+        lw.log( ['the channel is ' + self.ARGS.channel] )
+        lw.log( ['analog check is ' + str(self.ARGS.analogcheck)] )
 
 
     def _send_cmds( self, cmd ):
@@ -141,7 +189,7 @@ class Main:
 
     def _splitchannel( self ):
         cmd_list = []
-        for digit in list( self.ARGS.channel ):
+        for digit in list( self.CHANNEL ):
             try:
                 blast_digit = config.Get( 'digit_map' )[digit]
             except IndexError:

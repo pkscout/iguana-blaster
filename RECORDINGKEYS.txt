@@ -11,7 +11,7 @@ cd C:\Program Files (x86)\IguanaIR\
 Once there you can run the igclient.  Have your remote ready to do key presses and make
 sure you can actually point at the IR reciever on the transceiver.  Once you're ready:
 
-igclient.exe --reciever-on --sleep 3 > C:\staging\KEY_THENAME.txt
+igclient.exe --receiver-on --sleep 3 > C:\staging\KEY_THENAME.txt
 
 Everything after the > is up to you.  You need somewhere you can store the generated files
 temporarily.  Repeat this for every key you want to record.  If your recording the numeric

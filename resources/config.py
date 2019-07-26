@@ -16,7 +16,10 @@ defaults = { 'path_to_IGC': 'C:\\Program Files (x86)\\IguanaIR\\igclient.exe',
              'wait_between': 0,
              'ignore_precmd_for': 0,
              'ignore_postcmd_for': 0,
-             'aborttime': 10,
+             'analog_fail_cmds': '',
+             'analog_wait': 6,
+             'livetv_dir': '',
+             'aborttime': 20,
              'logbackups': 1,
              'debug': False }
 

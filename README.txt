@@ -9,6 +9,7 @@ To install download and unzip in any directory.  Then copy the keys-example fold
 
 The script has a set of default settings described in settings-example.py.  Review that file.  If you want to make changes you can either create a new settings.py file and copy and paste in the things you want to override or copy settings-example.py to settings.py and make changes as needed.  If you're not sure what a setting does even after reading the comments in the settings-example.py file, you can probably leave it at the default.
 
+The script will also check to make sure the encoder has created a file.  Right now this is optimized for use the NextPVR.  If first checks the LiveTV folder to see if there is a buffer .ts file (meaning LiveTV tuned properly).  If that fails, it looks for a file that tells the script where the recording file is (see ParallelProcessing.bat for an example of how to create that file with NextPVR) and checks to see if that file exists.  If neither do, it toggles the power on the cable box, waits, and then retunes the channel.
 
 Usage: execute.py [-h] [-c CHANNEL | -m 'CMDS'] [-n 'POSTCHANNEL'] [-b 'PRECMD']
                   [-e 'POSTCMD'] [-w WAIT] [-a] [-o]

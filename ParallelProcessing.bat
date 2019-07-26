@@ -1,0 +1,1 @@
+IF /I "%2" GEQ "1016" ECHO %1 > "C:/CustomApps/iguana-blaster/data/recordingpath-%2.txt"
