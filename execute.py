@@ -1,6 +1,6 @@
 # *  Credits:
 # *
-# *  v.1.1.0~beta1
+# *  v.1.1.0
 # *  original iguana-blaster code by pkscout
 
 import atexit, argparse, glob, os, subprocess, sys, time
@@ -38,7 +38,7 @@ class Main:
         self._parse_argv()
         self._wait_for_prev_cmd()
         self._init_vars()
-        if self.ARGS.analogcheck:
+        if self.ARGS.analogcheck and self.LIVETV_DIR:
             if self._check_analog( 'livetv' ):
                 return
             if self._check_analog( 'recording' ):
@@ -50,7 +50,7 @@ class Main:
         elif self.ARGS.cmds:
             self._send_cmds( self.ARGS.cmds )
         self._send_cmds( self._check_cmd_ignore( self.POST_CMD, self.IGNORE_POSTCMD_FOR, self.POST_LASTUSED_FILE ) )
-        if not self.ARGS.analogcheck:
+        if (not self.ARGS.analogcheck) and self.LIVETV_DIR:
             py_folder, py_file = os.path.split( sys.executable )
             cmd = [os.path.join( py_folder, 'pythonw.exe' ), os.path.join(p_folderpath, p_filename), '-c %s' % self.CHANNEL, '--analogcheck']
             lw.log( cmd )
@@ -78,12 +78,20 @@ class Main:
             success, loglines = deleteFile( recordingrefpath )
             lw.log( loglines )
             if recordingfile:
-                tv_file = recordingfile.strip()
+                lw.log( ['coverting string %s to path' % recordingfile] )
+                temp = recordingfile.strip()
+                lw.log(['put string %s into temporary variable' % temp] )
+                if temp.startswith('"') and temp.endswith('"'):
+                    tv_file = temp[1:-1]
         lw.log( ['the file is ' + tv_file] )
         if not os.path.exists( tv_file ):
+            lw.log( ['the file %s does not exist' % tv_file] )
             return False
-        elif os.stat( tv_file ).st_size == 0:
+        lw.log( ['the file %s exists' % tv_file] )
+        if os.stat( tv_file ).st_size == 0:
+            lw.log( ['the file %s has a zero size' % tv_file] )
             return False
+        lw.log( ['the file %s has a non zero size' % tv_file] )
         return True
 
                 
