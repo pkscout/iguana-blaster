@@ -1,10 +1,8 @@
 v.1.1.1~beta1
 - added a check to see if the analog encoder created a file and try to turn on cable box if it wasn't
 
-v.1.0.0~beta2
+v.1.0.0
 - updated to work with Python3
-
-v.1.0.0~beta1
 - changed how settings are handled so that settings.py is no longer required
 
 v.0.1.0
