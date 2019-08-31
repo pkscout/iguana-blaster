@@ -5,7 +5,7 @@ Prerequisites:
 A functioning IguanaWorks USB IR Transciever <https://www.iguanaworks.net>
 Python 2.7.x must be installed (Python 3.x may work but has not been tested).
 
-To install download and unzip in any directory.  Then copy the keys-example folder to keys.  This example folder contains the 9 digits and power on key for the TWC URC1056A03 remote.  These may work for you.  If not, please see the RECORDINGKEYS.txt file for information on how to create new keys.
+To install download and unzip in any directory.  Then copy the keys-example folder to keys.  This example folder contains the 9 digits and power on key for the Spectrum URC1056A03 remote.  These may work for you.  If not, please see the RECORDINGKEYS.txt file for information on how to create new keys.
 
 The script has a set of default settings described in settings-example.py.  Review that file.  If you want to make changes you can either create a new settings.py file and copy and paste in the things you want to override or copy settings-example.py to settings.py and make changes as needed.  If you're not sure what a setting does even after reading the comments in the settings-example.py file, you can probably leave it at the default.
 
