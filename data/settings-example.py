@@ -30,7 +30,7 @@ post_cmd = ''
 
 # the amount of time in seconds to wait between commands (and channel digits)
 # this can be overridden by using -w or --wait from the command line
-wait_between = 0
+wait_between = 0.1
 
 # allows you to not run pre or post commands for a certain period of time IN MINUTES
 # useful if, for instance, you want to send a power on command but then not again for 30 minutes
@@ -39,6 +39,19 @@ wait_between = 0
 # ignore post command can be overridden using -o or --forcepost from command line
 ignore_precmd_for = 0
 ignore_postcmd_for = 0
+
+# the path to the directory where the PVR software stores the LiveTV buffer
+# adding this enables the program to check and see if the analog encoder is working properly
+livetv_dir = ''
+
+# the file extension for the LiveTV video buffer file the PVR creates
+livetv_ext = '.ts'
+
+# how long to wait for the analog encoder to start generating a file
+analog_wait = 6
+
+# if the analog encoder check fails, the list of remote commands to send to the cable box
+analog_fail_cmds = ''
 
 # amount of time to wait in seconds until aborting command attempt
 aborttime = 10

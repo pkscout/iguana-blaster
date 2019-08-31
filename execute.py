@@ -68,7 +68,7 @@ class Main:
             except FileNotFoundError:
                 files = []
             for name in files:
-                if name.endswith( '.ts' ):
+                if name.endswith( config.Get( 'livetv_ext' ) ):
                     tv_file = os.path.join( self.LIVETV_DIR, name )
                     break
         elif type == 'recording':
