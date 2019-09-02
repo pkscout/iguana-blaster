@@ -1,4 +1,7 @@
-v.1.1.1~beta1
+v.1.2.0
+- added ability to specify IR channel and thus control up to 4 different devices
+
+v.1.1.1
 - added a check to see if the analog encoder created a file and try to turn on cable box if it wasn't
 
 v.1.0.0
