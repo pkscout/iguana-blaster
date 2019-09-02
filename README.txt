@@ -41,3 +41,10 @@ If you use a pipe in any command string, you must surround the string with singl
 An empty pipe in a command string is interpreted as an extra wait.
 -c and -m CANNOT be used together. You will get a command line error if you try.
 -n is ignored if you don't use -c
+
+Using with NextPVR:
+In the NextPVR device setup area (in settings) you can specific an executable and arguments.
+Executable: C:\Program Files\Python36\pythonw.exe (or whatever path you have to pythonw.exe)
+Arguments: C:\CustomApps\iguana-blaster\execute.py -c {channel} (or whatever path you have to execute.py)
+You can add whatever command line arguments from above you want to, although the only thing besides channel you might need to include in the irc (in cases where you are using multiple analog devices or need to tweak the default all channel blast).
+
