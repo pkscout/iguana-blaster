@@ -1,6 +1,6 @@
 # *  Credits:
 # *
-# *  v.1.1.0
+# *  v.1.2.0
 # *  original iguana-blaster code by pkscout
 
 import atexit, argparse, glob, os, subprocess, sys, time
@@ -121,6 +121,21 @@ class Main:
         return ''
 
 
+    def _convert_irc_to_hex( self, irc ):
+        channels = list( str( irc ) )
+        lw.log( ['the list of IR channels is:'] )
+        lw.log( channels )
+        total = 0
+        for channel in channels:
+            if channel == '3':
+                total = total + 4
+            elif channel == '4':
+                total = total + 8
+            else:
+                total = total + int( channel )
+        return str( hex( total ) )
+                
+            
     def _init_vars( self ):
         self.PRE_LASTUSED_FILE = os.path.join( p_folderpath, 'data', 'precmd_lastused.txt' )
         self.POST_LASTUSED_FILE = os.path.join( p_folderpath, 'data', 'postcmd_lastused.txt' )
@@ -150,6 +165,12 @@ class Main:
             self.IGNORE_POSTCMD_FOR = 0
         else:
             self.IGNORE_POSTCMD_FOR = config.Get( 'ignore_postcmd_for' )
+        if self.ARGS.irc:
+            lw.log( ['overriding default IR channel(s) with ' + self.ARGS.irc] )
+            self.IRC = self._convert_irc_to_hex( self.ARGS.irc )
+        else:
+            self.IRC = self._convert_irc_to_hex( config.Get( 'irc' ) )
+        lw.log( ['the hex IRC channel is ' + self.IRC] )
         self.CHANNEL = self.ARGS.channel.strip()
         self.ANALOG_FAIL_CMDS = config.Get( 'analog_fail_cmds' )
         self.ANALOG_WAIT = config.Get( 'analog_wait' )
@@ -161,6 +182,7 @@ class Main:
         group = parser.add_mutually_exclusive_group()
         group.add_argument( "-c", "--channel", help="the channel number" )
         group.add_argument( "-m", "--cmds", help="arbitrary string of commands" )
+        parser.add_argument("-i", "--irc", help="the IR channel(s) on which to send the command")
         parser.add_argument( "-n", "--postchannel", help="the command to send after the channel number" )
         parser.add_argument( "-b", "--precmd", help="the string of commands (separated by pipe) to send before any other commands" )
         parser.add_argument( "-e", "--postcmd", help="the string of commands (separated by pipe) to send after any other commands" )
@@ -180,7 +202,7 @@ class Main:
         for one_cmd in cmds:
             if one_cmd:
                 keyfile = os.path.join( self.KEYPATH, one_cmd + config.Get( 'key_ext' ) )
-                blast_cmd = '"%s" --send "%s"' % (config.Get( 'path_to_IGC' ), keyfile)
+                blast_cmd = '"%s" --set-channels %s --send "%s"' % (config.Get( 'path_to_IGC' ), self.IRC, keyfile)
                 lw.log( ['sending ' + blast_cmd] )
                 try:
                     subprocess.check_output( blast_cmd, shell=True)

@@ -16,6 +16,9 @@ digit_map = {'0':'KEY_0',
 # the extension used for the key files (please include the period if using an extension)
 key_ext = '.txt'
 
+# the IR channels used by the Iguana to send IR commands
+irc = '1234'
+
 # a command to send after every channel change
 # in case your box requires something like enter to send channel
 post_channel = ''
