@@ -1,6 +1,6 @@
 # *  Credits:
 # *
-# *  v.1.2.0
+# *  v.1.2.1
 # *  original iguana-blaster code by pkscout
 
 import atexit, argparse, glob, os, subprocess, sys, time
@@ -52,7 +52,7 @@ class Main:
         self._send_cmds( self._check_cmd_ignore( self.POST_CMD, self.IGNORE_POSTCMD_FOR, self.POST_LASTUSED_FILE ) )
         if (not self.ARGS.analogcheck) and self.LIVETV_DIR:
             py_folder, py_file = os.path.split( sys.executable )
-            cmd = [os.path.join( py_folder, 'pythonw.exe' ), os.path.join(p_folderpath, p_filename), '-c %s' % self.CHANNEL, '--analogcheck']
+            cmd = [os.path.join( py_folder, 'pythonw.exe' ), os.path.join(p_folderpath, p_filename), '--analogcheck'] + sys.argv[1:]
             lw.log( cmd )
             subprocess.Popen( cmd, shell=True )
         

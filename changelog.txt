@@ -1,3 +1,6 @@
+v.1.2.1
+- now pass entire original command line when checking analog encoder
+
 v.1.2.0
 - added ability to specify IR channel and thus control up to 4 different devices
 
