@@ -3,7 +3,7 @@ Python command line tool to blast IR commands via the IguanaWorks igclient
 
 Prerequisites:
 A functioning IguanaWorks USB IR Transciever <https://www.iguanaworks.net>
-Python 3.6.x or later must be installed (Python 2.7.x may work but has not been tested).
+Python 3.6.x or later must be installed.
 
 To install download and unzip in any directory.  Then copy the keys-example folder to keys.  This example folder contains the 9 digits and power on key for the Spectrum URC1056A03 remote.  These may work for you.  If not, please see the RECORDINGKEYS.txt file for information on how to create new keys.
 
