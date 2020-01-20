@@ -6,8 +6,7 @@
 import atexit, argparse, glob, os, subprocess, sys, time
 import resources.config as config
 from resources.lib.xlogger import Logger
-from resources.lib.fileops import checkPath, readFile, writeFile, deleteFile
-from configparser import *
+from resources.lib.fileops import readFile, writeFile, deleteFile
 
 p_folderpath, p_filename = os.path.split( os.path.realpath(__file__) )
 lw = Logger( logfile=os.path.join( p_folderpath, 'data', 'logfile.log' ),
