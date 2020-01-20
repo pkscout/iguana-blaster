@@ -97,16 +97,24 @@ class Main:
             return False
         lw.log( ['the file %s has a non zero size' % tv_file] )
         if config.Get( 'analog_alt_check' ) and gen_thumbs:
-            lw.log( 'checking video stream by comparing two image snapshots' )
+            threshold = config.Get( 'analog_threshold' )
+            lw.log( ['checking video stream by comparing two image snapshots'] )
             image1 = self._get_image( tv_file )
-            image2 = self._get_image( tv_file )
-            if image1 and image2:
-                if image1.shape == image2.shape:
-                    difference = cv2.subtract( image1, image2 )
-                    blue, green, red = cv2.split( difference )
-                    if cv2.countNonZero( blue ) == 0 and cv2.countNonZero( green ) == 0 and cv2.countNonZero( red ) == 0:
-                        lw.log( ['the images are the same, the source is not transmitting'] )
-                        return False
+            image2 = self._get_image( tv_file, get_last=True )
+            lw.log( ['have two potential images to check'] )
+            lw.log( ['checking the difference between the two images'] )
+            difference = cv2.subtract( image1, image2 )
+            blue, green, red = cv2.split( difference )
+            blue_diff = cv2.countNonZero( blue )
+            green_diff = cv2.countNonZero( green )
+            red_diff = cv2.countNonZero( red )
+            lw.log( ['got blue diff of %s, green diff of %s, and red diff of %s' % (str( blue_diff ), str( green_diff ), str( red_diff ))] )
+            if blue_diff <= threshold and green_diff <= threshold and red_diff <= threshold:
+                lw.log( ['the images are the same, the source is not transmitting'] )
+                return False
+            else:
+                lw.log( ['the images are different, the source is transmitting'] )                    
+        lw.log( ['finished analog check'] )                   
         return True
 
                 
@@ -151,24 +159,41 @@ class Main:
         return str( hex( total ) )
 
 
-    def __get_image( self, videopath ):
+    def _get_image( self, videopath, get_last=False ):
+        image = None
         vidcap = cv2.VideoCapture( videopath )
         num_frames = int( vidcap.get( cv2.CAP_PROP_FRAME_COUNT ) )
         fps = int( vidcap.get( cv2.CAP_PROP_FPS ) )
         lw.log( ['got numframes: %s and fps: %s' % (str( num_frames ), str( fps ))] )
         if num_frames < 30 and fps < 30:
             lw.log( ['probably an error when reading file with opencv, skipping thumbnail generation'] )
-            return
-        frame_start = fps
-        frame_end = num_frames - (self.ANALOG_WAIT * fps)
-        random.seed()
-        frame_cap = random.randint( frame_start, frame_end )
-        lw.log( ['capturing frame %s from range %s - %s' % (str( frame_cap ), str( frame_start ), str( frame_end ))] )
+            return None
+        if get_last:
+            if fps > num_frames:
+                frame_cap = num_frames
+            else:
+                frame_cap = num_frames - fps
+            thumbpath = os.path.join( p_folderpath, 'data', 'secondimage.jpg' )
+        else:
+            if fps > num_frames:
+                frame_cap = 1
+            else:
+                frame_cap = fps
+            thumbpath = os.path.join( p_folderpath, 'data', 'firstimage.jpg' )
+        lw.log( ['capturing frame %s' % str( frame_cap )] )
         vidcap.set( cv2.CAP_PROP_POS_FRAMES,frame_cap )
         success, image = vidcap.read()
         if success:
-            return image
-        return False
+            success, buffer = cv2.imencode(".jpg", image)
+            if success:
+                success, loglines = writeFile( buffer, thumbpath, wtype='wb' )
+                lw.log( loglines )
+                image = cv2.imread( thumbpath )
+            else:
+                lw.log( ['unable to encode thumbnail'] )
+        else:
+            lw.log( ['unable to create thumnail: frame out of range'] )
+        return image
 
 
     def _init_vars( self ):
