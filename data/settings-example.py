@@ -50,6 +50,14 @@ livetv_dir = ''
 # the file extension for the LiveTV video buffer file the PVR creates
 livetv_ext = '.ts'
 
+# set to True to use the alternative analog check logic
+analog_alt_check = False
+
+# The minimum size of the file (in mb) for the source analog device to be considered on
+# note that this is based on testing using the default wait time of 6 seconds
+# you might need a different threshold if you change the amount of time to wait before checking the file
+analog_threshold = 1024
+
 # how long to wait for the analog encoder to start generating a file
 analog_wait = 6
 
