@@ -1,20 +1,24 @@
 # *  Credits:
 # *
-# *  v.1.2.1
+# *  v.1.3.0
 # *  original iguana-blaster code by pkscout
 
 import atexit, argparse, glob, os, subprocess, sys, time
 import resources.config as config
-if sys.version_info < (3, 0):
-    from ConfigParser import *
-else:
-    from configparser import *
 from resources.lib.xlogger import Logger
-from resources.lib.fileops import readFile, writeFile, deleteFile
+from resources.lib.fileops import checkPath, readFile, writeFile, deleteFile
+from configparser import *
+if config.Get( 'analog_alt_check' ):
+    try:
+        import cv2
+        gen_thumbs = True
+    except ImportError:
+        lw.log( ['cv2 not installed, disabling alternative video check'] )
+        gen_thumbs = False
 
 p_folderpath, p_filename = os.path.split( os.path.realpath(__file__) )
-lw = Logger( logfile = os.path.join( p_folderpath, 'data', 'logfile.log' ),
-             numbackups = config.Get( 'logbackups' ), logdebug = str( config.Get( 'debug' ) ) )
+lw = Logger( logfile=os.path.join( p_folderpath, 'data', 'logfile.log' ),
+             numbackups=config.Get( 'logbackups' ), logdebug=config.Get( 'debug' ) )
 
 def _deletePID():
     success, loglines = deleteFile( pidfile )
@@ -92,6 +96,17 @@ class Main:
             lw.log( ['the file %s has a zero size' % tv_file] )
             return False
         lw.log( ['the file %s has a non zero size' % tv_file] )
+        if config.Get( 'analog_alt_check' ) and gen_thumbs:
+            lw.log( 'checking video stream by comparing two image snapshots' )
+            image1 = self._get_image( tv_file )
+            image2 = self._get_image( tv_file )
+            if image1 and image2:
+                if image1.shape == image2.shape:
+                    difference = cv2.subtract( image1, image2 )
+                    blue, green, red = cv2.split( difference )
+                    if cv2.countNonZero( blue ) == 0 and cv2.countNonZero( green ) == 0 and cv2.countNonZero( red ) == 0:
+                        lw.log( ['the images are the same, the source is not transmitting'] )
+                        return False
         return True
 
                 
@@ -134,8 +149,28 @@ class Main:
             else:
                 total = total + int( channel )
         return str( hex( total ) )
-                
-            
+
+
+    def __get_image( self, videopath ):
+        vidcap = cv2.VideoCapture( videopath )
+        num_frames = int( vidcap.get( cv2.CAP_PROP_FRAME_COUNT ) )
+        fps = int( vidcap.get( cv2.CAP_PROP_FPS ) )
+        lw.log( ['got numframes: %s and fps: %s' % (str( num_frames ), str( fps ))] )
+        if num_frames < 30 and fps < 30:
+            lw.log( ['probably an error when reading file with opencv, skipping thumbnail generation'] )
+            return
+        frame_start = fps
+        frame_end = num_frames - (self.ANALOG_WAIT * fps)
+        random.seed()
+        frame_cap = random.randint( frame_start, frame_end )
+        lw.log( ['capturing frame %s from range %s - %s' % (str( frame_cap ), str( frame_start ), str( frame_end ))] )
+        vidcap.set( cv2.CAP_PROP_POS_FRAMES,frame_cap )
+        success, image = vidcap.read()
+        if success:
+            return image
+        return False
+
+
     def _init_vars( self ):
         self.PRE_LASTUSED_FILE = os.path.join( p_folderpath, 'data', 'precmd_lastused.txt' )
         self.POST_LASTUSED_FILE = os.path.join( p_folderpath, 'data', 'postcmd_lastused.txt' )
