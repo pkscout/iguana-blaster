@@ -52,23 +52,23 @@ class Main:
             cmd = [os.path.join( py_folder, 'pythonw.exe' ), os.path.join(p_folderpath, p_filename), '--analogcheck'] + sys.argv[1:]
             lw.log( cmd )
             subprocess.Popen( cmd, shell=True )
-        
 
-    def _check_analog( self, type ):
+
+    def _check_analog( self, check_type ):
         # give the recording a chance to start
         time.sleep( self.ANALOG_WAIT )
         tv_file = 'nothing.ts'
         lw.log( ['got here with ' + type] )
-        if type == 'livetv':
-            try:
+        if check_type == 'livetv':
+            if os.path.exists( self.LIVETV_DIR ):
                 files = os.listdir( self.LIVETV_DIR )
-            except FileNotFoundError:
+            else:
                 files = []
             for name in files:
                 if name.endswith( config.Get( 'livetv_ext' ) ):
                     tv_file = os.path.join( self.LIVETV_DIR, name )
                     break
-        elif type == 'recording':
+        elif check_type == 'recording':
             recordingrefpath = os.path.join( p_folderpath, 'data', 'recordingpath-%s.txt' % self.CHANNEL )
             loglines, recordingfile = readFile( recordingrefpath )
             lw.log( loglines )
@@ -90,10 +90,10 @@ class Main:
         if file_size == 0 or (config.Get( 'analog_alt_check' ) and file_size < config.Get( 'analog_threshold' ) * 1000 ):
             lw.log( ['looks like the analog device is not on'] )
             return False
-        lw.log( ['finished analog check'] )                   
+        lw.log( ['finished analog check'] )
         return True
 
-                
+
     def _check_cmd_ignore( self, cmd, ignore_for, lastused_file ):
         if not cmd:
             if lastused_file == self.PRE_LASTUSED_FILE:
@@ -213,7 +213,7 @@ class Main:
     def _setPID( self ):
         lw.log( ['setting PID file'] )
         success, loglines = writeFile( pid, pidfile, wtype='w' )
-        lw.log( loglines )        
+        lw.log( loglines )
 
 
     def _splitchannel( self ):
