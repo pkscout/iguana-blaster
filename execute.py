@@ -8,13 +8,6 @@ import resources.config as config
 from resources.lib.xlogger import Logger
 from resources.lib.fileops import checkPath, readFile, writeFile, deleteFile
 from configparser import *
-if config.Get( 'analog_alt_check' ):
-    try:
-        import cv2
-        gen_thumbs = True
-    except ImportError:
-        lw.log( ['cv2 not installed, disabling alternative video check'] )
-        gen_thumbs = False
 
 p_folderpath, p_filename = os.path.split( os.path.realpath(__file__) )
 lw = Logger( logfile=os.path.join( p_folderpath, 'data', 'logfile.log' ),
@@ -92,28 +85,11 @@ class Main:
             lw.log( ['the file %s does not exist' % tv_file] )
             return False
         lw.log( ['the file %s exists' % tv_file] )
-        if os.stat( tv_file ).st_size == 0:
-            lw.log( ['the file %s has a zero size' % tv_file] )
+        file_size = os.stat( tv_file ).st_size
+        lw.log( ['the file %s has a size of %s' % (tv_file, str( file_size ))] )
+        if file_size == 0 or (config.Get( 'analog_alt_check' ) and file_size < config.Get( 'analog_threshold' ) * 1000 ):
+            lw.log( ['looks like the analog device is not on'] )
             return False
-        lw.log( ['the file %s has a non zero size' % tv_file] )
-        if config.Get( 'analog_alt_check' ) and gen_thumbs:
-            threshold = config.Get( 'analog_threshold' )
-            lw.log( ['checking video stream by comparing two image snapshots'] )
-            image1 = self._get_image( tv_file )
-            image2 = self._get_image( tv_file, get_last=True )
-            lw.log( ['have two potential images to check'] )
-            lw.log( ['checking the difference between the two images'] )
-            difference = cv2.subtract( image1, image2 )
-            blue, green, red = cv2.split( difference )
-            blue_diff = cv2.countNonZero( blue )
-            green_diff = cv2.countNonZero( green )
-            red_diff = cv2.countNonZero( red )
-            lw.log( ['got blue diff of %s, green diff of %s, and red diff of %s' % (str( blue_diff ), str( green_diff ), str( red_diff ))] )
-            if blue_diff <= threshold and green_diff <= threshold and red_diff <= threshold:
-                lw.log( ['the images are the same, the source is not transmitting'] )
-                return False
-            else:
-                lw.log( ['the images are different, the source is transmitting'] )                    
         lw.log( ['finished analog check'] )                   
         return True
 
@@ -157,43 +133,6 @@ class Main:
             else:
                 total = total + int( channel )
         return str( hex( total ) )
-
-
-    def _get_image( self, videopath, get_last=False ):
-        image = None
-        vidcap = cv2.VideoCapture( videopath )
-        num_frames = int( vidcap.get( cv2.CAP_PROP_FRAME_COUNT ) )
-        fps = int( vidcap.get( cv2.CAP_PROP_FPS ) )
-        lw.log( ['got numframes: %s and fps: %s' % (str( num_frames ), str( fps ))] )
-        if num_frames < 30 and fps < 30:
-            lw.log( ['probably an error when reading file with opencv, skipping thumbnail generation'] )
-            return None
-        if get_last:
-            if fps > num_frames:
-                frame_cap = num_frames
-            else:
-                frame_cap = num_frames - fps
-            thumbpath = os.path.join( p_folderpath, 'data', 'secondimage.jpg' )
-        else:
-            if fps > num_frames:
-                frame_cap = 1
-            else:
-                frame_cap = fps
-            thumbpath = os.path.join( p_folderpath, 'data', 'firstimage.jpg' )
-        lw.log( ['capturing frame %s' % str( frame_cap )] )
-        vidcap.set( cv2.CAP_PROP_POS_FRAMES,frame_cap )
-        success, image = vidcap.read()
-        if success:
-            success, buffer = cv2.imencode(".jpg", image)
-            if success:
-                success, loglines = writeFile( buffer, thumbpath, wtype='wb' )
-                lw.log( loglines )
-                image = cv2.imread( thumbpath )
-            else:
-                lw.log( ['unable to encode thumbnail'] )
-        else:
-            lw.log( ['unable to create thumnail: frame out of range'] )
-        return image
 
 
     def _init_vars( self ):
