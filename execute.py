@@ -7,6 +7,7 @@ import atexit, argparse, glob, os, subprocess, sys, time
 import resources.config as config
 from resources.lib.xlogger import Logger
 from resources.lib.fileops import readFile, writeFile, deleteFile
+from resources.lib.blasters import IguanaIR
 
 p_folderpath, p_filename = os.path.split( os.path.realpath(__file__) )
 lw = Logger( logfile=os.path.join( p_folderpath, 'data', 'logfile.log' ),
@@ -34,18 +35,21 @@ class Main:
         self._parse_argv()
         self._wait_for_prev_cmd()
         self._init_vars()
+        if not self.BLASTER:
+            lw.log( ['no valid blaster type configured in settings, quitting'] )
+            return
         if self.ARGS.analogcheck and self.LIVETV_DIR:
             if self._check_analog( 'livetv' ):
                 return
             if self._check_analog( 'recording' ):
                 return
-            self._send_cmds( self.ANALOG_FAIL_CMDS )
-        self._send_cmds( self._check_cmd_ignore( self.PRE_CMD, self.IGNORE_PRECMD_FOR, self.PRE_LASTUSED_FILE ) )
+            self._send_commands( self.ANALOG_FAIL_CMDS )
+        self._send_commands( self._check_cmd_ignore( self.PRE_CMD, self.IGNORE_PRECMD_FOR, self.PRE_LASTUSED_FILE ) )
         if self.CHANNEL:
-            self._send_cmds( self._splitchannel() )
+            self._send_commands( self._splitchannel() )
         elif self.ARGS.cmds:
-            self._send_cmds( self.ARGS.cmds )
-        self._send_cmds( self._check_cmd_ignore( self.POST_CMD, self.IGNORE_POSTCMD_FOR, self.POST_LASTUSED_FILE ) )
+            self._send_commands( self.ARGS.cmds )
+        self._send_commands( self._check_cmd_ignore( self.POST_CMD, self.IGNORE_POSTCMD_FOR, self.POST_LASTUSED_FILE ) )
         if (not self.ARGS.analogcheck) and self.LIVETV_DIR:
             py_folder, py_file = os.path.split( sys.executable )
             cmd = [os.path.join( py_folder, 'pythonw.exe' ), os.path.join(p_folderpath, p_filename), '--analogcheck'] + sys.argv[1:]
@@ -119,21 +123,6 @@ class Main:
         return ''
 
 
-    def _convert_irc_to_hex( self, irc ):
-        channels = list( str( irc ) )
-        lw.log( ['the list of IR channels is:'] )
-        lw.log( channels )
-        total = 0
-        for channel in channels:
-            if channel == '3':
-                total = total + 4
-            elif channel == '4':
-                total = total + 8
-            else:
-                total = total + int( channel )
-        return str( hex( total ) )
-
-
     def _init_vars( self ):
         self.PRE_LASTUSED_FILE = os.path.join( p_folderpath, 'data', 'precmd_lastused.txt' )
         self.POST_LASTUSED_FILE = os.path.join( p_folderpath, 'data', 'postcmd_lastused.txt' )
@@ -165,14 +154,14 @@ class Main:
             self.IGNORE_POSTCMD_FOR = config.Get( 'ignore_postcmd_for' )
         if self.ARGS.irc:
             lw.log( ['overriding default IR channel(s) with ' + self.ARGS.irc] )
-            self.IRC = self._convert_irc_to_hex( self.ARGS.irc )
+            self.IRC = self.ARGS.irc
         else:
-            self.IRC = self._convert_irc_to_hex( config.Get( 'irc' ) )
-        lw.log( ['the hex IRC channel is ' + self.IRC] )
+            self.IRC = config.Get( 'irc' )
         self.CHANNEL = self.ARGS.channel.strip()
         self.ANALOG_FAIL_CMDS = config.Get( 'analog_fail_cmds' )
         self.ANALOG_WAIT = config.Get( 'analog_wait' )
         self.LIVETV_DIR = config.Get( 'livetv_dir' )
+        self.BLASTER = self._pick_blaster()
 
 
     def _parse_argv( self ):
@@ -193,20 +182,17 @@ class Main:
         lw.log( ['analog check is ' + str(self.ARGS.analogcheck)] )
 
 
-    def _send_cmds( self, cmd ):
-        if not cmd:
-            return
-        cmds = cmd.split('|')
-        for one_cmd in cmds:
-            if one_cmd:
-                keyfile = os.path.join( self.KEYPATH, one_cmd + config.Get( 'key_ext' ) )
-                blast_cmd = '"%s" --set-channels %s --send "%s"' % (config.Get( 'path_to_IGC' ), self.IRC, keyfile)
-                lw.log( ['sending ' + blast_cmd] )
-                try:
-                    subprocess.check_output( blast_cmd, shell=True)
-                except subprocess.CalledProcessError as e:
-                    lw.log( [e] )
-            time.sleep( self.WAIT_BETWEEN )
+    def _pick_blaster( self ):
+        if config.Get( 'blaster_type' ).lower() == 'iguanair':
+            return IguanaIR( keypath=self.KEYPATH, key_ext=config.Get( 'key_ext' ),
+                             path_to_igc=config.Get( 'path_to_IGC' ), irc=self.IRC, wait_between=self.WAIT_BETWEEN )
+        else:
+            return None
+
+
+    def _send_commands( self, cmds ):
+        loglines = self.BLASTER.SendCommands( cmds )
+        lw.log( loglines )
 
 
     def _setPID( self ):
