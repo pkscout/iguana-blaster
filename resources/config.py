@@ -25,6 +25,8 @@ defaults = { 'blaster_type': 'iguanair',
              'analog_wait': 6,
              'analog_fail_cmds': '',
              'aborttime': 10,
+             'ws_ip': 'localhost',
+             'ws_port': 9001,
              'logbackups': 1,
              'debug': False }
 
