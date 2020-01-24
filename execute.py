@@ -1,13 +1,13 @@
 # *  Credits:
 # *
-# *  v.1.3.0
+# *  v.2.0.0
 # *  original iguana-blaster code by pkscout
 
 import atexit, argparse, glob, os, subprocess, sys, time
 import resources.config as config
 from resources.lib.xlogger import Logger
 from resources.lib.fileops import readFile, writeFile, deleteFile
-from resources.lib.blasters import IguanaIR
+from resources.lib.blasters import IguanaIR, IguanaIR_WebSocket
 
 p_folderpath, p_filename = os.path.split( os.path.realpath(__file__) )
 lw = Logger( logfile=os.path.join( p_folderpath, 'data', 'logfile.log' ),
@@ -183,9 +183,12 @@ class Main:
 
 
     def _pick_blaster( self ):
-        if config.Get( 'blaster_type' ).lower() == 'iguanair':
+        blaster_type = config.Get( 'blaster_type' ).lower()
+        if blaster_type == 'iguanair':
             return IguanaIR( keypath=self.KEYPATH, key_ext=config.Get( 'key_ext' ),
                              path_to_igc=config.Get( 'path_to_IGC' ), irc=self.IRC, wait_between=self.WAIT_BETWEEN )
+        elif blaster_type == 'iguanair-websocket':
+            return IguanaIR_WebSocket( ws_ip=config.Get( 'ws_ip' ), ws_port=config.Get( 'ws_port' ), irc=self.IRC )
         else:
             return None
 
