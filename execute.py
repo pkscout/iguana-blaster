@@ -51,17 +51,20 @@ class Main:
             self._send_commands( self.ARGS.cmds )
         self._send_commands( self._check_cmd_ignore( self.POST_CMD, self.IGNORE_POSTCMD_FOR, self.POST_LASTUSED_FILE ) )
         if (not self.ARGS.analogcheck) and self.LIVETV_DIR:
-            py_folder, py_file = os.path.split( sys.executable )
-            cmd = [os.path.join( py_folder, 'pythonw.exe' ), os.path.join(p_folderpath, p_filename), '--analogcheck'] + sys.argv[1:]
-            lw.log( cmd )
+            if os.name == 'nt':
+                py_folder, py_file = os.path.split( sys.executable )
+                cmd = [os.path.join( py_folder, 'pythonw.exe' ), os.path.join(p_folderpath, p_filename), '--analogcheck'] + sys.argv[1:]
+                lw.log( cmd )
+            else:
+                cmd = '%s %s --analogcheck %s %s' % (sys.executable, os.path.join(p_folderpath, p_filename), sys.argv[1], sys.argv[2])
+                lw.log( [cmd] )
             subprocess.Popen( cmd, shell=True )
-
 
     def _check_analog( self, check_type ):
         # give the recording a chance to start
         time.sleep( self.ANALOG_WAIT )
         tv_file = 'nothing.ts'
-        lw.log( ['got here with ' + type] )
+        lw.log( ['got here with ' + check_type] )
         if check_type == 'livetv':
             if os.path.exists( self.LIVETV_DIR ):
                 files = os.listdir( self.LIVETV_DIR )
