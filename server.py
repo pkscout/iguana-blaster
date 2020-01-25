@@ -27,24 +27,25 @@ class Main:
 
 
     def _new_client( self, client, server ):
-        lw.log( ['New client connected and was given id %d' % client['id']] )
+        lw.log( ['Client connected'] )
 
 
     def _client_left( self, client, server ):
-        lw.log( ['Client(%d) disconnected' % client['id']] )
+        lw.log( ['Client disconnected'] )
 
 
     def _message_received(self, client, server, message ):
         if len(message) > 200:
             message = message[:200] + '..'
-        lw.log( ['Client(%d) said: %s' % (client['id'], message)] )
+        lw.log( ['Client said: %s' % message] )
         jm = json.loads( message )
         blaster = self._pick_blaster( jm )
         if not blaster:
             lw.log( ['no valid blaster type configured in settings, not sending any commands'] )
         else:
             lw.log( ['sending commands on to %s' % jm.get( 'blaster' )] )
-            blaster.SendCommands( jm.get( 'commands' ) )
+            loglines = blaster.SendCommands( jm.get( 'commands' ) )
+            lw.log( loglines )
 
 
     def _pick_blaster( self, jm ):
