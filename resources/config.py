@@ -1,5 +1,5 @@
 defaults = { 'blaster_type': 'iguanair',
-             'path_to_IGC': 'C:\\Program Files (x86)\\IguanaIR\\igclient.exe',
+             'path_to_IGC': '',
              'digit_map': {'0':'KEY_0',
                            '1':'KEY_1',
                            '2':'KEY_2',

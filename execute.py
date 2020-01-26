@@ -126,6 +126,16 @@ class Main:
         return ''
 
 
+    def _get_igc( self ):
+        igc = config.Get( 'path_to_IGC' )
+        if igc:
+            return igc
+        elif os.name == 'nt':
+            return 'C:\\Program Files (x86)\\IguanaIR\\igclient.exe'
+        else:
+            return 'igclient'
+
+
     def _init_vars( self ):
         self.PRE_LASTUSED_FILE = os.path.join( p_folderpath, 'data', 'precmd_lastused.txt' )
         self.POST_LASTUSED_FILE = os.path.join( p_folderpath, 'data', 'postcmd_lastused.txt' )
@@ -189,7 +199,7 @@ class Main:
         blaster_type = config.Get( 'blaster_type' ).lower()
         if blaster_type == 'iguanair':
             return IguanaIR( keypath=self.KEYPATH, key_ext=config.Get( 'key_ext' ),
-                             path_to_igc=config.Get( 'path_to_IGC' ), irc=self.IRC, wait_between=self.WAIT_BETWEEN )
+                             path_to_igc=self._get_igc(), irc=self.IRC, wait_between=self.WAIT_BETWEEN )
         elif blaster_type == 'iguanair-websocket':
             return IguanaIR_WebSocket( ws_ip=config.Get( 'ws_ip' ), ws_port=config.Get( 'ws_port' ), irc=self.IRC )
         else:

@@ -48,17 +48,22 @@ class Main:
             lw.log( loglines )
 
 
+    def _get_igc( self ):
+        igc = config.Get( 'path_to_IGC' )
+        if igc:
+            return igc
+        elif os.name == 'nt':
+            return 'C:\\Program Files (x86)\\IguanaIR\\igclient.exe'
+        else:
+            return 'igclient'
+
+
     def _pick_blaster( self, jm ):
         if jm.get( 'blaster' ) == 'iguanair':
             return IguanaIR( keypath=os.path.join( p_folderpath, 'data', 'keys' ), key_ext=config.Get( 'key_ext' ),
-                             path_to_igc=config.Get( 'path_to_IGC' ), irc=jm.get( 'irc' ), wait_between=self.WAIT_BETWEEN )
+                             path_to_igc=self._get_igc(), irc=jm.get( 'irc' ), wait_between=self.WAIT_BETWEEN )
         else:
             return None
-
-
-    def _send_commands( self, cmds ):
-        loglines = self.BLASTER.SendCommands( cmds )
-        lw.log( loglines )
 
 
 

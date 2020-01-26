@@ -1,4 +1,4 @@
-defaults = { 'path_to_IGC': 'C:\\Program Files (x86)\\IguanaIR\\igclient.exe',
+defaults = { 'path_to_IGC': '',
              'key_ext': '.txt',
              'wait_between': 0.1,
              'ws_ip': '0.0.0.0',
