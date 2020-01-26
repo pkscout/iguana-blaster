@@ -65,7 +65,7 @@ class IguanaIR_WebSocket:
             return loglines
         if not has_websocket:
             loglines.append( 'websockets is not installed, this blaster module requires it' )
-            return loglines        
+            return loglines
         jsondict = { 'id':'1', 'jsonrpc':'2.0', 'blaster':'iguanair', 'irc': self.IRC, 'commands':cmd }
         ws_conn = 'ws://%s:%s' % (self.WSIP, self.WSPORT)
         loglines.append( 'sending %s to %s' % (jsondict, ws_conn) )
