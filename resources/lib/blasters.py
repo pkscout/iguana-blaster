@@ -1,4 +1,4 @@
-#v.0.3.0
+#v.1.0.0
 
 import os, json, subprocess, time
 try:
