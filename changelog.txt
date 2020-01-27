@@ -1,3 +1,6 @@
+v.2.1.0
+- moved DVR functions to separate module
+
 v.2.0.0
 - added option to run blaster in client/server mode and communicate via websockets
 - rewrote blasters to be modules for easier expansion
