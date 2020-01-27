@@ -100,3 +100,4 @@ ENV/
 .mypy_cache/
 data/settings.py
 data/settings_server.py
+data/settings_record.py
