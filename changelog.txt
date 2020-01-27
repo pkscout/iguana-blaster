@@ -1,6 +1,7 @@
 v.2.0.0
 - added option to run blaster in client/server mode and communicate via websockets
 - rewrote blasters to be modules for easier expansion
+- moved all documentation and examples to github wiki page
 
 v.1.3.0
 - added an alternative check for records that stream even if there's no data from the source
