@@ -1,4 +1,5 @@
 defaults = { 'blaster_type': 'iguanair',
+             'dvr_type': 'nextpvr',
              'path_to_IGC': '',
              'digit_map': {'0':'KEY_0',
                            '1':'KEY_1',
