@@ -41,7 +41,9 @@ class Main:
             lw.log( ['no valid blaster type configured in settings, quitting'] )
             return
         if self.ARGS.analogcheck and self.LIVETV_DIR:
-            if self.DVR.CheckAnalog():
+            success, loglines = self.DVR.CheckAnalog()
+            lw.log( loglines )
+            if success:
                 return
             self._send_commands( self.ANALOG_FAIL_CMDS )
         self._send_commands( self._check_cmd_ignore( self.PRE_CMD, self.IGNORE_PRECMD_FOR, self.PRE_LASTUSED_FILE ) )
