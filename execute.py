@@ -1,6 +1,6 @@
 # *  Credits:
 # *
-# *  v.2.0.0
+# *  v.2.1.0
 # *  original iguana-blaster code by pkscout
 
 import atexit, argparse, glob, os, subprocess, sys, time
@@ -8,6 +8,7 @@ import resources.config as config
 from resources.lib.xlogger import Logger
 from resources.lib.fileops import checkPath, readFile, writeFile, deleteFile
 from resources.lib.blasters import IguanaIR, IguanaIR_WebSocket
+from resources.lib.dvrs import NextPVR
 
 p_folderpath, p_filename = os.path.split( os.path.realpath(__file__) )
 checkPath( os.path.join( p_folderpath, 'data', 'logs', '' ) )
@@ -40,9 +41,7 @@ class Main:
             lw.log( ['no valid blaster type configured in settings, quitting'] )
             return
         if self.ARGS.analogcheck and self.LIVETV_DIR:
-            if self._check_analog( 'livetv' ):
-                return
-            if self._check_analog( 'recording' ):
+            if self.DVR.CheckAnalog():
                 return
             self._send_commands( self.ANALOG_FAIL_CMDS )
         self._send_commands( self._check_cmd_ignore( self.PRE_CMD, self.IGNORE_PRECMD_FOR, self.PRE_LASTUSED_FILE ) )
@@ -60,46 +59,6 @@ class Main:
                 cmd = '%s %s --analogcheck %s %s' % (sys.executable, os.path.join(p_folderpath, p_filename), sys.argv[1], sys.argv[2])
                 lw.log( [cmd] )
             subprocess.Popen( cmd, shell=True )
-
-    def _check_analog( self, check_type ):
-        # give the recording a chance to start
-        time.sleep( self.ANALOG_WAIT )
-        tv_file = 'nothing.ts'
-        lw.log( ['got here with ' + check_type] )
-        if check_type == 'livetv':
-            if os.path.exists( self.LIVETV_DIR ):
-                files = os.listdir( self.LIVETV_DIR )
-            else:
-                files = []
-            for name in files:
-                if name.endswith( config.Get( 'livetv_ext' ) ):
-                    tv_file = os.path.join( self.LIVETV_DIR, name )
-                    break
-        elif check_type == 'recording':
-            recordingrefpath = os.path.join( p_folderpath, 'data', 'recordingpath-%s.txt' % self.CHANNEL )
-            loglines, recordingfile = readFile( recordingrefpath )
-            lw.log( loglines )
-            success, loglines = deleteFile( recordingrefpath )
-            lw.log( loglines )
-            if recordingfile:
-                lw.log( ['coverting string %s to path' % recordingfile] )
-                temp = recordingfile.strip()
-                lw.log(['put string %s into temporary variable' % temp] )
-                if temp.startswith('"') and temp.endswith('"'):
-                    tv_file = temp[1:-1]
-        lw.log( ['the file is ' + tv_file] )
-        if not os.path.exists( tv_file ):
-            lw.log( ['the file %s does not exist' % tv_file] )
-            return False
-        lw.log( ['the file %s exists' % tv_file] )
-        file_size = os.stat( tv_file ).st_size
-        lw.log( ['the file %s has a size of %s' % (tv_file, str( file_size ))] )
-        if file_size == 0 or (config.Get( 'analog_alt_check' ) and file_size < config.Get( 'analog_threshold' ) * 1000 ):
-            lw.log( ['looks like the analog device is not on'] )
-            return False
-        lw.log( ['finished analog check'] )
-        return True
-
 
     def _check_cmd_ignore( self, cmd, ignore_for, lastused_file ):
         if not cmd:
@@ -173,9 +132,9 @@ class Main:
             self.IRC = config.Get( 'irc' )
         self.CHANNEL = self.ARGS.channel.strip()
         self.ANALOG_FAIL_CMDS = config.Get( 'analog_fail_cmds' )
-        self.ANALOG_WAIT = config.Get( 'analog_wait' )
         self.LIVETV_DIR = config.Get( 'livetv_dir' )
         self.BLASTER = self._pick_blaster()
+        self.DVR = self._pick_dvr()
 
 
     def _parse_argv( self ):
@@ -203,6 +162,14 @@ class Main:
                              path_to_igc=self._get_igc(), irc=self.IRC, wait_between=self.WAIT_BETWEEN )
         elif blaster_type == 'iguanair-websocket':
             return IguanaIR_WebSocket( ws_ip=config.Get( 'ws_ip' ), ws_port=config.Get( 'ws_port' ), irc=self.IRC )
+        else:
+            return None
+
+
+    def _pick_dvr( self ):
+        dvr_type = config.Get( 'dvr_type' ).lower()
+        if dvr_type == 'nextpvr':
+            return NextPVR( channel=self.CHANNEL, config=config, rootpath=p_folderpath )
         else:
             return None
 
