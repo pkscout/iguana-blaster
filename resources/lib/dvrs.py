@@ -54,7 +54,7 @@ class NextPVR:
             return False
         self.LOGLINES.append( 'the file %s exists' % tv_file )
         file_size = os.stat( tv_file ).st_size
-        lw.log( ['the file %s has a size of %s' % (tv_file, str( file_size ))] )
+        self.LOGLINES.append( 'the file %s has a size of %s' % (tv_file, str( file_size )) )
         if file_size == 0 or (self.ANALOGALTCHECK and file_size < self.ANALOGTHRESHOLD * 1000 ):
             self.LOGLINES.append( 'looks like the analog device is not on' )
             return False
