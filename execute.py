@@ -1,6 +1,6 @@
 # *  Credits:
 # *
-# *  v.2.1.0
+# *  v.2.2.0
 # *  original iguana-blaster code by pkscout
 
 import atexit, argparse, glob, os, subprocess, sys, time
