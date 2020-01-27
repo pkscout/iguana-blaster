@@ -6,11 +6,12 @@
 import atexit, argparse, glob, os, subprocess, sys, time
 import resources.config as config
 from resources.lib.xlogger import Logger
-from resources.lib.fileops import readFile, writeFile, deleteFile
+from resources.lib.fileops import checkPath, readFile, writeFile, deleteFile
 from resources.lib.blasters import IguanaIR, IguanaIR_WebSocket
 
 p_folderpath, p_filename = os.path.split( os.path.realpath(__file__) )
-lw = Logger( logfile=os.path.join( p_folderpath, 'data', 'logfile.log' ),
+checkPath( os.path.join( p_folderpath, 'data', 'logs', '' ) )
+lw = Logger( logfile=os.path.join( p_folderpath, 'data', 'logs', 'client.log' ),
              numbackups=config.Get( 'logbackups' ), logdebug=config.Get( 'debug' ) )
 
 def _deletePID():

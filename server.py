@@ -8,11 +8,13 @@
 import json, os
 import resources.config_server as config
 from resources.lib.xlogger import Logger
+from resources.lib.fileops import checkPath
 from resources.lib.blasters import IguanaIR
 from resources.lib.websocket_server import WebsocketServer
 
 p_folderpath, p_filename = os.path.split( os.path.realpath(__file__) )
-lw = Logger( logfile=os.path.join( p_folderpath, 'data', 'logfile-server.log' ),
+checkPath( os.path.join( p_folderpath, 'data', 'logs', '' ) )
+lw = Logger( logfile=os.path.join( p_folderpath, 'data', 'logs', 'server.log' ),
              numbackups=config.Get( 'logbackups' ), logdebug=config.Get( 'debug' ) )
 
 
