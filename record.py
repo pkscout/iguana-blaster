@@ -92,7 +92,7 @@ class Main:
     def _init_vars( self ):
         self.TEMPKEYPATH = self._create_key_dir( os.path.join( p_folderpath, 'data', 'tmp' ) )
         self.TEMPKEY = os.path.join( self.TEMPKEYPATH, 'tmp.txt' )
-        self.KEYPATH = self._create_key_dir( os.path.join( p_folderpath, 'data', 'keys2' ) )
+        self.KEYPATH = self._create_key_dir( os.path.join( p_folderpath, 'data', 'keys' ) )
         self.IGSLEEP = config.Get( 'ig_sleep' )
         self.KEYEXT = config.Get( 'key_ext' )
         self.DIALOGTEXT = 'Input key to record (hit enter with no key to exit):'
