@@ -1,3 +1,9 @@
+v.2.2.1
+- fixes so LiveTV check works with multiple sources at once
+
+v.2.2.0
+- added command line tool to record remote commands
+
 v.2.1.0
 - moved DVR functions to separate module
 

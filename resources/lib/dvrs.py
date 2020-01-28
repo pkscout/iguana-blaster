@@ -1,4 +1,4 @@
-#v.1.0.0
+#v.1.0.1
 
 import fnmatch, os, sqlite3, time
 from resources.lib.fileops import readFile, deleteFile

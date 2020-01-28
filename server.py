@@ -1,6 +1,6 @@
 # *  Credits:
 # *
-# *  v.2.2.0
+# *  v.2.2.1
 # *  original iguana-blaster code by pkscout
 # *  websocket server code by Johan Hanssen Seferidis
 # *  available at https://github.com/Pithikos/python-websocket-server
