@@ -1,6 +1,6 @@
 # *  Credits:
 # *
-# *  v.2.2.1
+# *  v.2.2.2
 # *  original iguana-blaster code by pkscout
 
 import atexit, argparse, glob, os, subprocess, sys, time
@@ -38,7 +38,10 @@ class Main:
         self._wait_for_prev_cmd()
         self._init_vars()
         if not self.BLASTER:
-            lw.log( ['no valid blaster type configured in settings, quitting'] )
+            lw.log( ['invalid blaster type configured in settings, quitting'], 'info' )
+            return
+        if not self.DVR:
+            lw.log( ['invalid DVR type configured in settings, quitting'], 'info' )
             return
         if self.ARGS.analogcheck and self.LIVETV_DIR:
             success, loglines = self.DVR.CheckAnalog()
