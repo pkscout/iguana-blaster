@@ -43,7 +43,7 @@ class Main:
         jm = json.loads( message )
         blaster = self._pick_blaster( jm )
         if not blaster:
-            lw.log( ['no valid blaster type configured in settings, not sending any commands'] )
+            lw.log( ['invalid blaster type configured in settings, not sending any commands'] )
         else:
             lw.log( ['sending commands on to %s' % jm.get( 'blaster' )] )
             loglines = blaster.SendCommands( jm.get( 'commands' ) )
