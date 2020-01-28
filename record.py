@@ -3,7 +3,7 @@
 # *  v.2.2.0
 # *  original iguana-blaster code by pkscout
 
-import os, subprocess, sys, time
+import os, subprocess, time
 import resources.config_record as config
 from resources.lib.xlogger import Logger
 from resources.lib.fileops import checkPath, readFile, deleteFile, writeFile, deleteFolder
