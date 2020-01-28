@@ -1,6 +1,6 @@
 #v.1.0.0
 
-import os, time
+import fnmatch, os, sqlite3, time
 from resources.lib.fileops import readFile, deleteFile
 
 class NextPVR:
@@ -8,6 +8,7 @@ class NextPVR:
         self.LOGLINES = []
         self.ROOTPATH = rootpath
         self.CHANNEL = channel
+        self.DBLOC = config.Get( 'db_loc' )
         self.ANALOGWAIT = config.Get( 'analog_wait')
         self.LIVETVDIR = config.Get( 'livetv_dir' )
         self.LIVETVEXT = config.Get( 'livetv_ext' )
@@ -28,12 +29,29 @@ class NextPVR:
         tv_file = 'nothing.ts'
         self.LOGLINES.append( 'got here with ' + check_type )
         if check_type == 'livetv':
+            try:
+                db = sqlite3.connect( self.DBLOC )
+                cursor = db.cursor()
+                cursor.execute( '''SELECT name from CHANNEL WHERE number=?''', ( self.CHANNEL, ) )
+                channel_name = cursor.fetchone()[0]
+                db.close()
+            except sqlite3.OperationalError:
+                self.LOGLINES.append( 'Error connecting to NPVR database.' )
+                channel_name = ''
+            except KeyError:
+                self.LOGLINES.append( 'No channel name returned from database query.' )
+                channel_name = ''
+            if channel_name:
+                match_string = 'live-%s*%s' % (channel_name, self.LIVETVEXT)
+            else:
+                match_string = '*%s' % self.LIVETVEXT
+            self.LOGLINES.append( 'using match string: %s' % match_string )
             if os.path.exists( self.LIVETVDIR ):
                 files = os.listdir( self.LIVETVDIR )
             else:
                 files = []
             for name in files:
-                if name.endswith( self.LIVETVEXT ):
+                if fnmatch.fnmatch( name, match_string ):
                     tv_file = os.path.join( self.LIVETVDIR, name )
                     break
         elif check_type == 'recording':
