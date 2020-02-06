@@ -66,6 +66,8 @@ class NextPVR:
                 self.LOGLINES.append( 'put string %s into temporary variable' % temp )
                 if temp.startswith('"') and temp.endswith('"'):
                     tv_file = temp[1:-1]
+                else:
+                    tv_file = temp
         self.LOGLINES.append( 'the file is ' + tv_file )
         if not os.path.exists( tv_file ):
             self.LOGLINES.append( 'the file %s does not exist' % tv_file )
