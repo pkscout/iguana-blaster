@@ -1,3 +1,9 @@
+v.2.2.3
+- fix for recording file path not being passed to analog check properly
+
+v.2.2.2
+- fixes so program won't crash with invalid blaster or DVR settings
+
 v.2.2.1
 - fixes so LiveTV check works with multiple sources at once
 
