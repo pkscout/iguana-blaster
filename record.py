@@ -1,6 +1,6 @@
 # *  Credits:
 # *
-# *  v.2.2.2
+# *  v.2.2.4
 # *  original iguana-blaster code by pkscout
 
 import os, subprocess, time
