@@ -1,11 +1,11 @@
 # *  Credits:
 # *
-# *  v.2.2.2
+# *  v.2.2.4
 # *  original iguana-blaster code by pkscout
 # *  websocket server code by Johan Hanssen Seferidis
 # *  available at https://github.com/Pithikos/python-websocket-server
 
-import json, os
+import json, os, time
 import resources.config_server as config
 from resources.lib.xlogger import Logger
 from resources.lib.fileops import checkPath
@@ -21,6 +21,7 @@ lw = Logger( logfile=os.path.join( p_folderpath, 'data', 'logs', 'server.log' ),
 class Main:
     def __init__( self ):
         self.WAIT_BETWEEN = config.Get( 'wait_between' )
+        self.CMDRUNNING = False
         self.SERVER = WebsocketServer( config.Get( 'ws_port' ), host=config.Get( 'ws_ip' ) )
         self.SERVER.set_fn_new_client( self._new_client )
         self.SERVER.set_fn_client_left( self._client_left )
@@ -45,9 +46,14 @@ class Main:
         if not blaster:
             lw.log( ['invalid blaster type configured in settings, not sending any commands'] )
         else:
+            while self.CMDRUNNING:
+               time.sleep( 1 )
+               lw.log( ['checking to see if previous command has completed'] )
+            self.CMDRUNNING = True 
             lw.log( ['sending commands on to %s' % jm.get( 'blaster' )] )
             loglines = blaster.SendCommands( jm.get( 'commands' ) )
             lw.log( loglines )
+            self.CMDRUNNING = False
 
 
     def _get_igc( self ):
