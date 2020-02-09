@@ -1,3 +1,6 @@
+v.2.2.4
+- fix so server will properly sequence pre and post commands from client
+
 v.2.2.3
 - fix for recording file path not being passed to analog check properly
 
