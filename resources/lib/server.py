@@ -1,25 +1,28 @@
 # *  Credits:
 # *
-# *  v.2.2.4
+# *  v.2.2.5
 # *  original iguana-blaster code by pkscout
 # *  websocket server code by Johan Hanssen Seferidis
 # *  available at https://github.com/Pithikos/python-websocket-server
 
-import json, os, time
+import json, os, sys, time
 import resources.config_server as config
 from resources.lib.xlogger import Logger
 from resources.lib.fileops import checkPath
 from resources.lib.blasters import IguanaIR
 from resources.lib.websocket_server import WebsocketServer
 
-p_folderpath, p_filename = os.path.split( os.path.realpath(__file__) )
-checkPath( os.path.join( p_folderpath, 'data', 'logs', '' ) )
-lw = Logger( logfile=os.path.join( p_folderpath, 'data', 'logs', 'server.log' ),
+p_folderpath, p_filename = os.path.split( sys.argv[0] )
+logpath = os.path.join( p_folderpath, 'data', 'logs', '' )
+checkPath( logpath )
+lw = Logger( logfile=os.path.join( logpath, 'server.log' ),
              numbackups=config.Get( 'logbackups' ), logdebug=config.Get( 'debug' ) )
+
 
 
 class Main:
     def __init__( self ):
+        lw.log( ['script started'], 'info' )
         self.WAIT_BETWEEN = config.Get( 'wait_between' )
         self.CMDRUNNING = False
         self.SERVER = WebsocketServer( config.Get( 'ws_port' ), host=config.Get( 'ws_ip' ) )
@@ -27,6 +30,7 @@ class Main:
         self.SERVER.set_fn_client_left( self._client_left )
         self.SERVER.set_fn_message_received( self._message_received )
         self.SERVER.run_forever()
+        lw.log( ['script finished'], 'info' )
 
 
     def _new_client( self, client, server ):
@@ -49,7 +53,7 @@ class Main:
             while self.CMDRUNNING:
                time.sleep( 1 )
                lw.log( ['checking to see if previous command has completed'] )
-            self.CMDRUNNING = True 
+            self.CMDRUNNING = True
             lw.log( ['sending commands on to %s' % jm.get( 'blaster' )] )
             loglines = blaster.SendCommands( jm.get( 'commands' ) )
             lw.log( loglines )
@@ -72,10 +76,3 @@ class Main:
                              path_to_igc=self._get_igc(), irc=jm.get( 'irc' ), wait_between=self.WAIT_BETWEEN )
         else:
             return None
-
-
-
-if ( __name__ == "__main__" ):
-    lw.log( ['script started'], 'info' )
-    Main()
-lw.log( ['script finished'], 'info' )

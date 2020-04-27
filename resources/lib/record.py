@@ -1,21 +1,24 @@
 # *  Credits:
 # *
-# *  v.2.2.4
+# *  v.2.2.5
 # *  original iguana-blaster code by pkscout
 
-import os, subprocess, time
+import os, subprocess, sys, time
 import resources.config_record as config
 from resources.lib.xlogger import Logger
 from resources.lib.fileops import checkPath, readFile, deleteFile, writeFile, deleteFolder
 
-p_folderpath, p_filename = os.path.split( os.path.realpath(__file__) )
-checkPath( os.path.join( p_folderpath, 'data', 'logs', '' ) )
-lw = Logger( logfile=os.path.join( p_folderpath, 'data', 'logs', 'record.log' ),
+p_folderpath, p_filename = os.path.split( sys.argv[0] )
+logpath = os.path.join( p_folderpath, 'data', 'logs', '' )
+checkPath( logpath )
+lw = Logger( logfile=os.path.join( logpath, 'record.log' ),
              numbackups=config.Get( 'logbackups' ), logdebug=config.Get( 'debug' ) )
+
 
 
 class Main:
     def __init__( self ):
+        lw.log( ['script started'], 'info' )
         self._init_vars()
         thekey = input( self.DIALOGTEXT )
         while thekey:
@@ -23,6 +26,7 @@ class Main:
             self._create_key( thekey )
             thekey = input( self.DIALOGTEXT )
         self._cleanup()
+        lw.log( ['script finished'], 'info' )
 
 
     def _capture_ir( self ):
@@ -119,10 +123,3 @@ class Main:
                 return False
         else:
             return False
-
-
-
-if ( __name__ == "__main__" ):
-    lw.log( ['script started'], 'info' )
-    Main()
-lw.log( ['script finished'], 'info' )

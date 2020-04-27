@@ -1,3 +1,7 @@
+v.2.2.5
+- code refactor
+- moved to one executable for all three functions
+
 v.2.2.4
 - fix so server will properly sequence pre and post commands from client
 
