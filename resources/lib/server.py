@@ -1,9 +1,4 @@
-# *  Credits:
-# *
-# *  v.2.2.5
-# *  original iguana-blaster code by pkscout
-# *  websocket server code by Johan Hanssen Seferidis
-# *  available at https://github.com/Pithikos/python-websocket-server
+#v.2.0.0
 
 import json, os, sys, time
 import resources.config_server as config
@@ -60,19 +55,9 @@ class Main:
             self.CMDRUNNING = False
 
 
-    def _get_igc( self ):
-        igc = config.Get( 'path_to_IGC' )
-        if igc:
-            return igc
-        elif os.name == 'nt':
-            return 'C:\\Program Files (x86)\\IguanaIR\\igclient.exe'
-        else:
-            return 'igclient'
-
-
     def _pick_blaster( self, jm ):
         if jm.get( 'blaster' ) == 'iguanair':
             return IguanaIR( keypath=os.path.join( p_folderpath, 'data', 'keys' ), key_ext=config.Get( 'key_ext' ),
-                             path_to_igc=self._get_igc(), irc=jm.get( 'irc' ), wait_between=self.WAIT_BETWEEN )
+                             path_to_igc=config.Get( 'path_to_IGC' ), irc=jm.get( 'irc' ), wait_between=self.WAIT_BETWEEN )
         else:
             return None

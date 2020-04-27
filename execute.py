@@ -1,3 +1,8 @@
+# *  Credits:
+# *
+# *  v.2.2.6
+# *  original iguana-blaster code by pkscout
+
 import sys
 
 if ( __name__ == "__main__" ):

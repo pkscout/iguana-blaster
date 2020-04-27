@@ -1,17 +1,20 @@
-#v.1.0.0
+#v.1.0.1
 
 import os, json, subprocess, time
+from resources.lib.fileops import osPathFromString
 try:
     import websocket
     has_websocket = True
 except ImportError:
     has_websocket = False
 
+
+
 class IguanaIR:
     def __init__( self, keypath='', key_ext='.txt', path_to_igc='', irc='1234', wait_between=0.1 ):
         self.KEYEXT = key_ext
         self.KEYPATH = keypath
-        self.PATHTOIGC = path_to_igc
+        self.PATHTOIGC = self._get_igc( path_to_igc )
         self.IRC = self._convert_irc_to_hex( irc )
         self.WAITBETWEEN = wait_between
 
@@ -46,6 +49,15 @@ class IguanaIR:
             else:
                 total = total + int( channel )
         return str( hex( total ) )
+
+
+    def _get_igc( self, igc ):
+        if igc:
+            return osPathFromString( igc )
+        elif os.name == 'nt':
+            return os.path.join( 'C:', 'Program Files (x86)', 'IguanaIR', 'igclient.exe' )
+        else :
+            return 'igclient'
 
 
 

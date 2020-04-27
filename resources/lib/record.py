@@ -1,12 +1,9 @@
-# *  Credits:
-# *
-# *  v.2.2.5
-# *  original iguana-blaster code by pkscout
+#v.2.0.0
 
 import os, subprocess, sys, time
 import resources.config_record as config
 from resources.lib.xlogger import Logger
-from resources.lib.fileops import checkPath, readFile, deleteFile, writeFile, deleteFolder
+from resources.lib.fileops import checkPath, deleteFile, deleteFolder, osPathFromString, readFile,  writeFile
 
 p_folderpath, p_filename = os.path.split( sys.argv[0] )
 logpath = os.path.join( p_folderpath, 'data', 'logs', '' )
@@ -83,13 +80,12 @@ class Main:
             lw.log( loglines )
 
 
-    def _get_igc( self ):
-        igc = config.Get( 'path_to_IGC' )
+    def _get_igc( self, igc ):
         if igc:
-            return igc
+            return osPathFromString( igc )
         elif os.name == 'nt':
-            return 'C:\\Program Files (x86)\\IguanaIR\\igclient.exe'
-        else:
+            return os.path.join( 'C:', 'Program Files (x86)', 'IguanaIR', 'igclient.exe' )
+        else :
             return 'igclient'
 
 
@@ -100,7 +96,7 @@ class Main:
         self.IGSLEEP = config.Get( 'ig_sleep' )
         self.KEYEXT = config.Get( 'key_ext' )
         self.DIALOGTEXT = 'Input key to record (hit enter with no key to exit):'
-        self.PATHTOIGC = self._get_igc()
+        self.PATHTOIGC = self._get_igc( config.Get( 'path_to_IGC' ) )
         self.WROTEKEY = False
 
 

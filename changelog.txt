@@ -1,3 +1,6 @@
+v.2.2.6
+- changed method for determining location of blaster executable file
+
 v.2.2.5
 - code refactor
 - moved to one executable for all three functions
