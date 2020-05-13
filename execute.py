@@ -1,6 +1,6 @@
 # *  Credits:
 # *
-# *  v.2.2.6
+# *  v.2.2.7
 # *  original iguana-blaster code by pkscout
 
 import sys
