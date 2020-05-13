@@ -65,6 +65,7 @@ class Main:
                 lw.log( [cmd] )
             subprocess.Popen( cmd, shell=True )
 
+
     def _check_cmd_ignore( self, cmd, ignore_for, lastused_file ):
         if not cmd:
             if lastused_file == self.PRE_LASTUSED_FILE:
