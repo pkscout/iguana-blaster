@@ -68,6 +68,9 @@ class NextPVR:
                     tv_file = temp[1:-1]
                 else:
                     tv_file = temp
+            else:
+               self.LOGLINES.append( 'The recording path file is missing. Sending back OK signal to be safe.' )
+               return True 
         self.LOGLINES.append( 'the file is ' + tv_file )
         if not os.path.exists( tv_file ):
             self.LOGLINES.append( 'the file %s does not exist' % tv_file )
