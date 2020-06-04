@@ -1,6 +1,6 @@
 #v.2.0.0
 
-import json, os, sys, time
+import json, os, time
 import resources.config_server as config
 from resources.lib.xlogger import Logger
 from resources.lib.blasters import *

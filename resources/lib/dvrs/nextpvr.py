@@ -80,11 +80,3 @@ class DVR:
             if recording.get( 'channel', '' ) == channel_name:
                 return recording.get( 'file', '' )
         return ''
-    
-    
-    
-    
-    
-    
-    
-    
