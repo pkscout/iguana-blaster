@@ -1,16 +1,9 @@
-#v.1.0.1
 
-import os, json, subprocess, time
+import os, subprocess, time
 from resources.lib.fileops import osPathFromString
-try:
-    import websocket
-    has_websocket = True
-except ImportError:
-    has_websocket = False
 
 
-
-class IguanaIR:
+class Blaster:
     def __init__( self, keypath='', key_ext='.txt', path_to_igc='', irc='1234', wait_between=0.1 ):
         self.KEYEXT = key_ext
         self.KEYPATH = keypath
@@ -58,37 +51,3 @@ class IguanaIR:
             return os.path.join( 'C:', 'Program Files (x86)', 'IguanaIR', 'igclient.exe' )
         else :
             return 'igclient'
-
-
-
-class IguanaIR_WebSocket:
-    def __init__( self, ws_ip='localhost', ws_port='9001', irc='1234' ):
-        if has_websocket:
-            self.WSCLIENT = websocket.WebSocket()
-        self.IRC = irc
-        self.WSIP = ws_ip
-        self.WSPORT = ws_port
-
-
-    def SendCommands( self, cmd ):
-        loglines = []
-        if not cmd:
-            loglines.append( 'no commands were available to send' )
-            return loglines
-        if not has_websocket:
-            loglines.append( 'websockets is not installed, this blaster module requires it' )
-            return loglines
-        jsondict = { 'id':'1', 'jsonrpc':'2.0', 'blaster':'iguanair', 'irc': self.IRC, 'commands':cmd }
-        ws_conn = 'ws://%s:%s' % (self.WSIP, self.WSPORT)
-        loglines.append( 'sending %s to %s' % (jsondict, ws_conn) )
-        try:
-            self.WSCLIENT.connect( ws_conn )
-        except ConnectionRefusedError:
-            loglines.append( 'connection refused' )
-            return loglines
-        self.WSCLIENT.send( json.dumps( jsondict ) )
-        self.WSCLIENT.close()
-        loglines.append( 'commands sent' )
-        return loglines
-
-

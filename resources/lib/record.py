@@ -1,21 +1,18 @@
-#v.2.0.0
 
-import os, subprocess, sys, time
+import os, subprocess, time
 import resources.config_record as config
 from resources.lib.xlogger import Logger
-from resources.lib.fileops import checkPath, deleteFile, deleteFolder, osPathFromString, readFile,  writeFile
-
-p_folderpath, p_filename = os.path.split( sys.argv[0] )
-logpath = os.path.join( p_folderpath, 'data', 'logs', '' )
-checkPath( logpath )
-lw = Logger( logfile=os.path.join( logpath, 'record.log' ),
-             numbackups=config.Get( 'logbackups' ), logdebug=config.Get( 'debug' ) )
+from resources.lib.fileops import *
 
 
 
 class Main:
-    def __init__( self ):
-        lw.log( ['script started'], 'info' )
+    def __init__( self, thepath ):
+        """Start process to record IR keys."""
+        self.ROOTPATH = os.path.dirname( thepath )
+        self.LW = Logger( logfile=os.path.join(self.ROOTPATH, 'data', 'logs', 'record.log' ),
+                          numbackups=config.Get( 'logbackups' ), logdebug=config.Get( 'debug' ) )
+        self.LW.log( ['script started'], 'info' )
         self._init_vars()
         thekey = input( self.DIALOGTEXT )
         while thekey:
@@ -23,23 +20,23 @@ class Main:
             self._create_key( thekey )
             thekey = input( self.DIALOGTEXT )
         self._cleanup()
-        lw.log( ['script finished'], 'info' )
+        self.LW.log( ['script finished'], 'info' )
 
 
     def _capture_ir( self ):
         print( 'waiting for remote command...' )
         cmd = '"%s" --receiver-on --sleep %s > "%s"' % (self.PATHTOIGC, str( self.IGSLEEP ), self.TEMPKEY)
-        lw.log( ['sending ' + cmd] )
+        self.LW.log( ['sending ' + cmd] )
         try:
             subprocess.check_output( cmd, shell=True)
         except subprocess.CalledProcessError as e:
-            lw.log( [e] )
+            self.LW.log( [e] )
         time.sleep( self.IGSLEEP )
 
 
     def _create_key( self, thekey ):
         loglines, raw_ir = readFile( self.TEMPKEY )
-        lw.log( loglines )
+        self.LW.log( loglines )
         if raw_ir:
             first_pulse = False
             ir_cmd = []
@@ -56,28 +53,28 @@ class Main:
                         ir_cmd.append( one_line )
             if ir_cmd:
                 success, loglines = writeFile( "\n".join( ir_cmd ), os.path.join( self.KEYPATH, 'KEY_%s%s' % (thekey, self.KEYEXT) ), wtype='w' )
-                lw.log( loglines )
+                self.LW.log( loglines )
                 self.WROTEKEY = success
             success, loglines = deleteFile( self.TEMPKEY )
-            lw.log( loglines )
+            self.LW.log( loglines )
 
 
     def _create_key_dir( self, thepath ):
         f_exists, loglines = checkPath( os.path.join( thepath, '' ) )
-        lw.log (loglines )
+        self.LW.log (loglines )
         return thepath
 
 
     def _cleanup( self ):
-        lw.log( ['cleaning up before quitting'] )
+        self.LW.log( ['cleaning up before quitting'] )
         if os.path.exists( self.TEMPKEY ):
             success, loglines = deleteFile( self.TEMPKEY )
-            lw.log( loglines )
+            self.LW.log( loglines )
         success, loglines = deleteFolder( self.TEMPKEYPATH )
-        lw.log( loglines )
+        self.LW.log( loglines )
         if not self.WROTEKEY:
             sucess, loglines = deleteFolder( self.KEYPATH )
-            lw.log( loglines )
+            self.LW.log( loglines )
 
 
     def _get_igc( self, igc ):
@@ -90,9 +87,9 @@ class Main:
 
 
     def _init_vars( self ):
-        self.TEMPKEYPATH = self._create_key_dir( os.path.join( p_folderpath, 'data', 'tmp' ) )
+        self.TEMPKEYPATH = self._create_key_dir( os.path.join( self.ROOTPATH, 'data', 'tmp' ) )
         self.TEMPKEY = os.path.join( self.TEMPKEYPATH, 'tmp.txt' )
-        self.KEYPATH = self._create_key_dir( os.path.join( p_folderpath, 'data', 'keys' ) )
+        self.KEYPATH = self._create_key_dir( os.path.join( self.ROOTPATH, 'data', 'keys' ) )
         self.IGSLEEP = config.Get( 'ig_sleep' )
         self.KEYEXT = config.Get( 'key_ext' )
         self.DIALOGTEXT = 'Input key to record (hit enter with no key to exit):'

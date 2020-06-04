@@ -16,4 +16,4 @@ if ( __name__ == "__main__" ):
         from resources.lib.server import Main
     else:
         from resources.lib.blast import Main
-    Main()
+    Main( __file__ )

@@ -1,3 +1,6 @@
+v.3.0.0
+- rewritten to support NextPVR5
+
 v.2.2.6
 - changed method for determining location of blaster executable file
 
