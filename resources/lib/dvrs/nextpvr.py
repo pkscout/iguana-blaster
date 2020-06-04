@@ -32,7 +32,7 @@ class DVR:
             tv_file = self._get_recording_path( channel_name )
         self.LOGLINES.append( 'the file is ' + tv_file )
         if not tv_file:
-            self.LOGLINES.append( 'no file returned from NextPVR' )
+            self.LOGLINES.append( 'no file returned from NextPVR, that probably means this is not a %s file' % check_type )
             return False
         if not os.path.exists( tv_file ):
             self.LOGLINES.append( 'the file does not exist' )
